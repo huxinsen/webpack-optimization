@@ -1,6 +1,8 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin') // 把 css 提取到单独的文件
 const HtmlWebpackPlugin = require('html-webpack-plugin') // 自动生成 html 文件并且引入打包后的文件
+const glob = require('glob') // 查找匹配的文件
+const PurgeCssWebpackPlugin = require('purgecss-webpack-plugin') // 删除无意义的 css，需配合 mini-css-extract-plugin
 
 module.exports = env => {
   return {
@@ -43,6 +45,9 @@ module.exports = env => {
       new HtmlWebpackPlugin({
         template: './src/template.html',
         filename: 'index.html',
+      }),
+      new PurgeCssWebpackPlugin({
+        paths: glob.sync('./src/**/*', { nodir: true }),
       }),
     ].filter(Boolean),
   }
