@@ -12,7 +12,10 @@ module.exports = env => {
     mode: env,
     entry: './src/index.js',
     output: {
+      // 同步打包的名字
       filename: 'bundle.js',
+      // 异步打包的名字
+      chunkFilename: '[name].min.js',
       // 出口必须是绝对路径，（保险起见都用绝对路径）
       path: path.resolve(__dirname, 'dist'),
     },
