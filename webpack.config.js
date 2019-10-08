@@ -3,26 +3,31 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin') // 把 css 提�
 const HtmlWebpackPlugin = require('html-webpack-plugin') // 自动生成 html 文件并且引入打包后的文件
 const glob = require('glob') // 查找匹配的文件
 const PurgeCssWebpackPlugin = require('purgecss-webpack-plugin') // 删除无意义的 css，需配合 mini-css-extract-plugin
-const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin') // 添加 cdn
+// const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin') // 添加 cdn
 const DllReferencePlugin = require('webpack/lib/DllReferencePlugin') // 构建时会引用动态链接库的内容
 const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin') // 手动引入 dll.js 文件
 
 module.exports = env => {
   return {
     mode: env,
-    entry: './src/index.js',
+    // entry 有三种写法：字符串、数组和对象
+    // entry: './src/index.js',
+    entry: {
+      a: './src/a.js',
+      b: './src/b.js',
+    },
     output: {
       // 同步打包的名字
-      filename: 'bundle.js',
+      filename: '[name].js',
       // 异步打包的名字
       chunkFilename: '[name].min.js',
       // 出口必须是绝对路径，（保险起见都用绝对路径）
       path: path.resolve(__dirname, 'dist'),
     },
-    externals: {
-      // 作用：对第三方库的用法不变，但不打包第三方库，从而加速 webpack 的打包速度
-      jquery: 'jQuery',
-    },
+    // externals: {
+    //   // 作用：对第三方库的用法不变，但不打包第三方库，从而加速 webpack 的打包速度
+    //   jquery: 'jQuery',
+    // },
     module: {
       rules: [
         {
@@ -86,13 +91,21 @@ module.exports = env => {
       new HtmlWebpackPlugin({
         template: './src/template.html',
         filename: 'index.html',
+        chunks: ['a'],
+      }),
+      new HtmlWebpackPlugin({
+        template: './src/template.html',
+        filename: 'login.html',
+        // 打包顺序，按自定义排序
+        chunksSortMode: 'manual',
+        chunks: ['b', 'a'],
       }),
       new PurgeCssWebpackPlugin({
         paths: glob.sync('./src/**/*', { nodir: true }),
       }),
-      new AddAssetHtmlCdnPlugin(true, {
-        jquery: 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js',
-      }),
+      // new AddAssetHtmlCdnPlugin(true, {
+      //   jquery: 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js',
+      // }),
       new DllReferencePlugin({
         manifest: path.resolve(__dirname, 'dll/manifest.json'),
       }),
