@@ -72,6 +72,10 @@ module.exports = env => {
         },
       ],
     },
+    // 在开发环境下默认 tree-shaking 不会生效，可以配置标识提示
+    optimization: {
+      usedExports: true,
+    },
     plugins: [
       env !== 'developmemt' && new MiniCssExtractPlugin(),
       new HtmlWebpackPlugin({

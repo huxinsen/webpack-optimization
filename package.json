@@ -13,6 +13,9 @@
   ],
   "author": "huxinsen",
   "license": "MIT",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
