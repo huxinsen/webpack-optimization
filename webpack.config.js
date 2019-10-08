@@ -4,6 +4,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin') // 自动生成 html �
 const glob = require('glob') // 查找匹配的文件
 const PurgeCssWebpackPlugin = require('purgecss-webpack-plugin') // 删除无意义的 css，需配合 mini-css-extract-plugin
 const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin') // 添加 cdn
+const DllReferencePlugin = require('webpack/lib/DllReferencePlugin') // 构建时会引用动态链接库的内容
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin') // 手动引入 dll.js 文件
 
 module.exports = env => {
   return {
@@ -87,6 +89,12 @@ module.exports = env => {
       }),
       new AddAssetHtmlCdnPlugin(true, {
         jquery: 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js',
+      }),
+      new DllReferencePlugin({
+        manifest: path.resolve(__dirname, 'dll/manifest.json'),
+      }),
+      new AddAssetHtmlWebpackPlugin({
+        filepath: path.resolve(__dirname, 'dll/react.dll.js'),
       }),
     ].filter(Boolean),
   }
