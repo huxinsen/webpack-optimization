@@ -1,5 +1,6 @@
 body {
-  background-color: orangered;
+  background-image: url('./webpack.png');
+  background-size: cover;
 }
 
 .title {
