@@ -6,6 +6,7 @@ const PurgeCssWebpackPlugin = require('purgecss-webpack-plugin') // 删除无意
 // const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin') // 添加 cdn
 const DllReferencePlugin = require('webpack/lib/DllReferencePlugin') // 构建时会引用动态链接库的内容
 const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin') // 手动引入 dll.js 文件
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer') // 打包文件分析
 
 module.exports = env => {
   return {
@@ -83,8 +84,38 @@ module.exports = env => {
       ],
     },
     // 在开发环境下默认 tree-shaking 不会生效，可以配置标识提示
+    // optimization: {
+    //   usedExports: true,
+    // },
+    // 在生产环境下，将第三方模块抽离（不要和 DllPlugin 共同使用）
+    // 目的：1）和业务逻辑分开 2）增加缓存
     optimization: {
-      usedExports: true,
+      splitChunks: {
+        chunks: 'all', // 分割模块：all（全部的）async（异步的）initial（同步的）
+        minSize: 30000, // 文件超过30k就分割
+        maxSize: 0,
+        minChunks: 1, // 最少模块引用一次就分割
+        maxAsyncRequests: 5, // 最大异步请求数
+        maxInitialRequests: 3, // 最大首屏请求数
+        automaticNameDelimiter: '~', // 分割的命名分隔符
+        automaticNameMaxLength: 30, // 名字最大长度
+        name: true,
+        // 缓存组 Cache groups can inherit and/or override any options from splitChunks.*;
+        // but test, priority and reuseExistingChunk can only be configured on cache group level
+        cacheGroups: {
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            // 优先级 A module can belong to multiple cache groups.
+            // The optimization will prefer the cache group with a higher priority.
+            priority: -10,
+          },
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+        },
+      },
     },
     plugins: [
       env !== 'developmemt' && new MiniCssExtractPlugin(),
@@ -112,6 +143,7 @@ module.exports = env => {
       new AddAssetHtmlWebpackPlugin({
         filepath: path.resolve(__dirname, 'dll/react.dll.js'),
       }),
+      env !== 'developmemt' && new BundleAnalyzerPlugin(),
     ].filter(Boolean),
   }
 }
