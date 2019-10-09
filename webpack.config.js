@@ -4,12 +4,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin') // 自动生成 html �
 const glob = require('glob') // 查找匹配的文件
 const PurgeCssWebpackPlugin = require('purgecss-webpack-plugin') // 删除无意义的 css，需配合 mini-css-extract-plugin
 // const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin') // 添加 cdn
-const DllReferencePlugin = require('webpack/lib/DllReferencePlugin') // 构建时会引用动态链接库的内容
-const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin') // 手动引入 dll.js 文件
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer') // 打包文件分析
+const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin') // 费时分析
+const smw = new SpeedMeasureWebpackPlugin()
 
 module.exports = env => {
-  return {
+  return smw.wrap({
     mode: env,
     // entry 有三种写法：字符串、数组和对象
     // entry: './src/index.js',
@@ -137,13 +137,7 @@ module.exports = env => {
       // new AddAssetHtmlCdnPlugin(true, {
       //   jquery: 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js',
       // }),
-      new DllReferencePlugin({
-        manifest: path.resolve(__dirname, 'dll/manifest.json'),
-      }),
-      new AddAssetHtmlWebpackPlugin({
-        filepath: path.resolve(__dirname, 'dll/react.dll.js'),
-      }),
       env !== 'developmemt' && new BundleAnalyzerPlugin(),
     ].filter(Boolean),
-  }
+  })
 }
